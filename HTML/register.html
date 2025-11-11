@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Đăng ký</title>
+  <link rel="stylesheet" href="../style/auth.css">
+</head>
+<body class="register-page">
+  <div class="video-background">
+  <div class="video-foreground">
+    <iframe 
+      src="https://www.youtube.com/embed/YAFUyPp_238?autoplay=1&mute=1&controls=0&loop=1&playlist=YAFUyPp_238&start=23"
+      frameborder="0"
+      allow="autoplay; fullscreen"
+      allowfullscreen>
+    </iframe>
+  </div>
+</div>
+  <main>
+    <form id="register-form">
+      <h1>Đăng ký</h1>
+      <input type="email" id="register-email" placeholder="Email" required>
+      <input type="password" id="register-password" placeholder="Mật khẩu (≥ 6 ký tự)" required>
+      <input type="password" id="register-confirm-password" placeholder="Nhập lại Mật khẩu" required>
+      <button type="submit">Đăng ký</button>
+      <p class="small">
+        Đã có tài khoản? <a href="login.html">Đăng nhập</a>
+      </p>
+    </form>
+  </main>
+
+  <script type="module" src="../script/auth.js"></script>
+</body>
+</html>
