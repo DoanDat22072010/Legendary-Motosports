@@ -1,0 +1,164 @@
+:root {
+  --gold: #d4af37;
+  --gold-hover: #ffd966;
+  --text: #fdfdfd;
+  --card: rgba(20, 20, 20, 0.88);
+  --radius: 14px;
+  --shadow: 0 8px 28px rgba(0,0,0,0.8);
+}
+
+/* Toàn trang */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Video nền */
+.video-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: -2;
+}
+
+.video-foreground iframe {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120%;
+  height: 120%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  filter: brightness(55%) blur(5px);
+}
+
+/* Lớp phủ tối */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: -1;
+}
+
+/* ==== FORM ==== */
+form {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 400px;
+  padding: 38px 32px;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: 0 0 25px rgba(0,0,0,0.6);
+  text-align: center;
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  transition: all 0.4s ease;
+
+  opacity: 0;
+  transform: scale(0.95) translateY(20px);
+  animation: fadeZoomIn 0.6s ease forwards;
+}
+
+/* 💫 Hiệu ứng glow khi hover form */
+form:hover {
+  box-shadow: 0 0 35px rgba(212,175,55,0.5),
+              0 0 15px rgba(212,175,55,0.3),
+              0 0 5px rgba(212,175,55,0.2);
+  transform: scale(1.02);
+}
+
+/* Tiêu đề */
+form h1 {
+  margin-top: 0;
+  margin-bottom: 28px;
+  font-size: 26px;
+  color: var(--gold);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* Input */
+input {
+  width: 100%;
+  height: 46px; /* ✅ Cố định chiều cao giống nhau */
+  padding: 0 14px; /* đều nhau, không đẩy chữ lên xuống */
+  margin-bottom: 18px;
+  border-radius: var(--radius);
+  border: 1px solid #222;
+  background: rgba(255,255,255,0.12);
+  color: var(--text);
+  font-size: 15px;
+  font-family: inherit;
+  line-height: 1; /* giúp căn giữa chữ */
+  box-sizing: border-box;
+  transition: all 0.25s ease;
+}
+
+input::placeholder {
+  color: #aaa;
+}
+
+input:focus {
+  outline: none;
+  border: 1px solid var(--gold);
+  box-shadow: 0 0 8px rgba(212,175,55,0.4);
+  background: rgba(0,0,0,0.4);
+}
+
+
+/* Nút đăng nhập / đăng ký */
+button[type="submit"] {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--gold);
+  color: #000;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  margin-top: 4px;
+}
+
+button[type="submit"]:hover {
+  background: var(--gold-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(212,175,55,0.4);
+}
+
+/* Link nhỏ */
+.small {
+  margin-top: 18px;
+  font-size: 14px;
+  color: #ccc;
+}
+
+.small a {
+  color: var(--gold);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.small a:hover {
+  text-decoration: underline;
+}
+
+/* Animation */
+@keyframes fadeZoomIn {
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}

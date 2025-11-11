@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Legendary Motosports</title>
+  <link rel="stylesheet" href="../style/style.css" />
+</head>
+
+<body>
+  <header>
+    <h1>🏎️ Legendary Motosports</h1>
+    <nav>
+      <a href="index.html">Trang chủ</a>
+      <a href="about.html">Giới thiệu</a>
+      <a href="login.html">Đăng nhập</a>
+      <a href="manage.html">Quản lý xe</a>
+    </nav>
+  </header>
+
+  <section class="search-bar">
+    <input type="text" id="searchInput" placeholder="🔍 Nhập tên xe để tìm kiếm...">
+  </section>
+
+  <main id="car-list" class="car-list"></main>
+
+  <div id="buy-popup" class="modal">
+    <div class="modal-content">
+      <span class="close-btn">&times;</span>
+      <h3>Xác nhận Đặt mua <span id="popup-car-name"></span></h3>
+      <form id="buyForm">
+        <div class="form-group">
+          <label for="buyerName">Tên của bạn:</label>
+          <input type="text" id="buyerName" required>
+        </div>
+        <div class="form-group">
+          <label for="buyerEmail">Email liên hệ:</label>
+          <input type="email" id="buyerEmail" required>
+        </div>
+        <button type="submit" class="btn btn-buy-confirm">Xác nhận mua</button>
+      </form>
+    </div>
+  </div>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyABalL-liOEB5174fDeJ0OWNrg_xfA1APU",
+      authDomain: "legendary-motosports-864b3.firebaseapp.com",
+      projectId: "legendary-motosports-864b3",
+      storageBucket: "legendary-motosports-864b3.firebasestorage.app",
+      messagingSenderId: "960257570446",
+      appId: "1:960257570446:web:81bfc9a97664bd422a3bdf",
+      measurementId: "G-4XRBSRC96D"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const xeCollection = collection(db, "xe");
+
+    const carList = document.getElementById("car-list");
+    const searchInput = document.getElementById("searchInput");
+    let allCars = [];
+    
+    // Logic Popup elements
+    const buyPopup = document.getElementById("buy-popup");
+    const closeBtn = document.querySelector(".close-btn");
+    const popupCarName = document.getElementById("popup-car-name");
+    const buyForm = document.getElementById("buyForm");
+
+    async function loadCars() {
+      carList.innerHTML = "<p class='text-center w-100 mt-5'>Đang tải danh sách xe...</p>";
+      try {
+        const snap = await getDocs(xeCollection);
+        allCars = [];
+        snap.forEach(doc => allCars.push({ id: doc.id, ...doc.data() }));
+        renderCars(allCars);
+      } catch (err) {
+        console.error("Lỗi tải dữ liệu:", err);
+        carList.innerHTML = "<p class='text-center w-100 mt-5 text-danger'>Lỗi tải dữ liệu. Vui lòng kiểm tra kết nối Firebase.</p>";
+      }
+    }
+
+    function renderCars(list) {
+      carList.innerHTML = "";
+      if (!list.length) {
+        carList.innerHTML = "<p class='text-center w-100 mt-5'>Không tìm thấy xe nào.</p>";
+        return;
+      }
+      list.forEach(data => {
+        const card = document.createElement('div');
+        card.className = "car-card";
+        card.innerHTML = `
+          <div style="background:#1b1b1b; padding:12px; border-radius:10px;">
+            <img src="${data.linkAnh || 'https://via.placeholder.com/600x400?text=No+Image'}" alt="${data.ten}" style="width:100%; height:280px; object-fit:cover; border-radius:8px;">
+            <div style="padding:10px; text-align:center;">
+              <h5 style="margin:6px 0;">${data.ten}</h5>
+              <p style="margin:0;">${data.loai || ''}</p>
+              <button style="margin-top:8px; background:gold; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; margin-right:5px;" onclick="goToDetail('${data.id}')">Xem chi tiết</button>
+              <button class="buy-btn" data-car-name="${data.ten}" style="margin-top:8px; background:#4CAF50; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; color:white;">Đặt mua ngay</button>
+            </div>
+          </div>
+        `;
+        carList.appendChild(card);
+      });
+    }
+
+    // tìm kiếm
+    if (searchInput) {
+      searchInput.addEventListener("input", () => {
+        const keyword = searchInput.value.toLowerCase().trim();
+        const filtered = allCars.filter(c =>
+          (c.ten || '').toLowerCase().includes(keyword) ||
+          (c.loai || '').toLowerCase().includes(keyword)
+        );
+        renderCars(filtered);
+      });
+    }
+
+    // chuyển trang chi tiết
+    window.goToDetail = function(id) {
+      window.location.href = `detail.html?id=${id}`;
+    };
+
+    // ✅ Logic Popup
+    document.addEventListener('click', (e) => {
+        if (e.target && e.target.classList.contains('buy-btn')) {
+            const carName = e.target.getAttribute('data-car-name');
+            popupCarName.textContent = carName; // Cập nhật tên xe
+            buyPopup.style.display = "block";
+            buyForm.setAttribute('data-current-car', carName);
+        }
+    });
+
+    // Đóng popup khi click vào X
+    if (closeBtn) {
+        closeBtn.onclick = function() {
+            buyPopup.style.display = "none";
+            buyForm.reset();
+        }
+    }
+
+    // Đóng popup khi click ra ngoài
+    window.onclick = function(event) {
+        if (event.target == buyPopup) {
+            buyPopup.style.display = "none";
+            buyForm.reset();
+        }
+    }
+
+    // Xử lý Form Xác nhận
+    buyForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const carName = buyForm.getAttribute('data-current-car');
+        const name = document.getElementById("buyerName").value.trim();
+        const email = document.getElementById("buyerEmail").value.trim();
+
+        if (name && email) {
+            // Thay thế bằng logic lưu dữ liệu thật nếu cần
+            alert(`✅ Đặt mua thành công! Xe: ${carName}. Tên: ${name}. Email: ${email}. Chúng tôi sẽ liên hệ với bạn sớm!`);
+            buyPopup.style.display = "none";
+            buyForm.reset();
+        } else {
+            alert("Vui lòng nhập đầy đủ Tên và Email.");
+        }
+    });
+
+    loadCars();
+  </script>
+
+  <style>
+    body { background-color: #111; color:white; font-family: 'Segoe UI', sans-serif; margin:0; padding:0;}
+    header { background:#000; padding:15px; text-align:center;}
+    nav a { color:gold; margin:0 10px; text-decoration:none; font-weight:bold;}
+    .search-bar { text-align:center; padding:20px;}
+    #searchInput { width:80%; max-width:500px; padding:10px 15px; font-size:16px; border-radius:10px; border:2px solid gold; background:#222; color:white;}
+    .car-list { display:grid; grid-template-columns: repeat(4, minmax(250px, 1fr)); gap:20px; padding:20px;}
+    
+    /* ===== POPUP (Modal) STYLE ===== */
+    .modal {
+      display: none; /* Ẩn mặc định */
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.7);
+      animation: fadeIn 0.3s;
+    }
+
+    .modal-content {
+      background-color: #1b1b1b;
+      margin: 15% auto; /* Đặt ở giữa màn hình */
+      padding: 30px;
+      border: 1px solid gold;
+      width: 80%;
+      max-width: 450px;
+      border-radius: 12px;
+      position: relative;
+      box-shadow: 0 5px 15px rgba(255, 215, 0, 0.2);
+    }
+
+    .close-btn {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close-btn:hover,
+    .close-btn:focus {
+      color: gold;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .modal-content h3 {
+        color: gold;
+        margin-top: 0;
+        border-bottom: 2px solid #333;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .modal-content span {
+        font-weight: bold;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: #ddd;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 10px;
+        border-radius: 6px;
+        border: 1px solid #333;
+        background: #222;
+        color: white;
+        box-sizing: border-box;
+    }
+
+    .btn-buy-confirm {
+        width: 100%;
+        padding: 10px;
+        background: gold;
+        border: none;
+        border-radius: 6px;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 15px;
+    }
+
+    .btn-buy-confirm:hover {
+        background: #fff;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+  </style>
+</body>
+</html>
